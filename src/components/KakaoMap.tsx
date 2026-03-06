@@ -77,5 +77,32 @@ export default function KakaoMap({ latitude, longitude, toilets, onMarkerClick }
     addMarkers();
   }, [addMarkers]);
 
-  return <div ref={mapRef} className="w-full h-full" />;
+  const handleMoveToMyLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { kakao } = window;
+        if (!mapInstanceRef.current || !kakao) return;
+
+        const moveLatLng = new kakao.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        mapInstanceRef.current.panTo(moveLatLng);
+      },
+      undefined,
+      { enableHighAccuracy: true },
+    );
+  }, []);
+
+  return (
+    <div className="relative w-full h-full">
+      <div ref={mapRef} className="w-full h-full" />
+      <button
+        onClick={handleMoveToMyLocation}
+        className="absolute bottom-6 right-4 z-40 bg-white shadow-md rounded-full w-12 h-12 flex items-center justify-center text-lg"
+        title="내 위치"
+      >
+        📍
+      </button>
+    </div>
+  );
 }
